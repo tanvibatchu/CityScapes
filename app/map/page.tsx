@@ -180,13 +180,11 @@ function MapContent() {
               ["linear"],
               ["get", "score"],
               0,
-              "#4c1d95",
-              0.35,
-              "#b45309",
-              0.65,
-              "#ca8a04",
+              "#166534",
+              0.5,
+              "#dc2626",
               1,
-              "#22c55e",
+              "#4ade80",
             ],
             "circle-opacity": 0.88,
             "circle-stroke-width": 1,
@@ -358,7 +356,8 @@ function MapContent() {
       <aside className="map-panel">
         <h2 className="map-panel-title">Green priority</h2>
         <p className="map-panel-hint">
-          Dots = prototype grid. Purple → green = higher suitability score.
+          Dots = prototype grid. Score colors: dark green → red (mid) → light
+          green.
         </p>
         {(Object.keys(weights) as (keyof SuitabilityWeights)[]).map((k) => (
           <label key={k} className="map-slider-row">

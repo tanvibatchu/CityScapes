@@ -63,11 +63,19 @@ export default function Home() {
             (layer.layout as Record<string, unknown>)?.["text-field"]
         )?.id;
 
-        // Official Mapbox 3D buildings implementation
+        // Standard style has no "composite" source; add Streets v8 for the building layer.
+        const buildingsSourceId = "cityscapes-streets-v8";
+        if (!map.getSource(buildingsSourceId)) {
+          map.addSource(buildingsSourceId, {
+            type: "vector",
+            url: "mapbox://mapbox.mapbox-streets-v8",
+          });
+        }
+
         map.addLayer(
           {
             id: "add-3d-buildings",
-            source: "composite",
+            source: buildingsSourceId,
             "source-layer": "building",
             filter: ["==", "extrude", "true"],
             type: "fill-extrusion",

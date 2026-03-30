@@ -13,6 +13,7 @@ import {
 import { cellsToGeoJSON } from "@/lib/map/cellsToGeoJSON";
 import { KW_BOUNDS } from "@/lib/suitability";
 import type { PredictResponseV1 } from "@/lib/prediction/types";
+import CostAnalysisPanel from "@/app/components/CostAnalysisPanel";
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? "";
 const KW_CENTER: [number, number] = [-80.5449, 43.4643];
@@ -47,9 +48,6 @@ const SCORE_CONFIG: Record<HotspotScore, { color: string; label: string }> = {
 };
 
 // ─── Hotspot generation ───────────────────────────────────────────────────────
-// Deterministic AI-suggested greenspace spots relative to a center point.
-// Scoring considers: residential density, park proximity, foot traffic,
-// open land availability, and visual appeal.
 function generateHotspots(center: [number, number]): Hotspot[] {
   const [lng, lat] = center;
   const raw = [
@@ -150,17 +148,27 @@ async function geocode(q: string): Promise<[number, number] | null> {
   } catch { return null; }
 }
 
-// ─── Add 3D buildings (official Mapbox pattern) ───────────────────────────────
+// ─── Add 3D buildings ─────────────────────────────────────────────────────────
+// FIX: Mapbox Standard style has no "composite" source — add streets-v8 manually
 function add3DBuildings(map: MapboxMap) {
   const layers = map.getStyle().layers;
   const labelLayerId = layers.find(
     (l) => l.type === "symbol" && (l.layout as Record<string, unknown>)?.["text-field"]
   )?.id;
   if (map.getLayer("add-3d-buildings")) return;
+
+  const sourceId = "cityscapes-streets-v8";
+  if (!map.getSource(sourceId)) {
+    map.addSource(sourceId, {
+      type: "vector",
+      url: "mapbox://mapbox.mapbox-streets-v8",
+    });
+  }
+
   map.addLayer(
     {
       id: "add-3d-buildings",
-      source: "composite",
+      source: sourceId,
       "source-layer": "building",
       filter: ["==", "extrude", "true"],
       type: "fill-extrusion",
@@ -169,7 +177,7 @@ function add3DBuildings(map: MapboxMap) {
         "fill-extrusion-color": ["interpolate", ["linear"], ["get", "height"],
           0, "#2a1410", 20, "#4a2817", 60, "#6b3c24", 130, "#8b5030", 250, "#9b5e38"],
         "fill-extrusion-height": ["interpolate", ["linear"], ["zoom"], 15, 0, 15.05, ["get", "height"]],
-        "fill-extrusion-base":   ["interpolate", ["linear"], ["zoom"], 15, 0, 15.05, ["get", "min_height"]],
+        "fill-extrusion-base": ["interpolate", ["linear"], ["zoom"], 15, 0, 15.05, ["get", "min_height"]],
         "fill-extrusion-opacity": 0.88,
       },
     },
@@ -194,20 +202,20 @@ function generateAIResponse(msg: string, location: string): string {
 
 // ─── Main map component ───────────────────────────────────────────────────────
 function MapContent() {
-  const mapRef          = useRef<HTMLDivElement>(null);
-  const mapInstanceRef  = useRef<mapboxgl.Map | null>(null);
-  const markerRef       = useRef<mapboxgl.Marker | null>(null);
-  const hotspotMarkers  = useRef<mapboxgl.Marker[]>([]);
-  const centerRef       = useRef<[number, number]>(KW_CENTER);
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<mapboxgl.Map | null>(null);
+  const markerRef = useRef<mapboxgl.Marker | null>(null);
+  const hotspotMarkers = useRef<mapboxgl.Marker[]>([]);
+  const centerRef = useRef<[number, number]>(KW_CENTER);
 
   const searchParams = useSearchParams();
-  const [query, setQuery]               = useState(searchParams.get("q") ?? "");
-  const [loading, setLoading]           = useState(false);
+  const [query, setQuery] = useState(searchParams.get("q") ?? "");
+  const [loading, setLoading] = useState(false);
   const [locationLabel, setLocationLabel] = useState("Kitchener–Waterloo");
-  const [activePanel, setActivePanel]   = useState<"communicate" | null>(null);
-  const [message, setMessage]           = useState("");
-  const [chat, setChat]                 = useState<ChatMessage[]>([]);
-  const [aiTyping, setAiTyping]         = useState(false);
+  const [activePanel, setActivePanel] = useState<"communicate" | "cost" | null>(null);
+  const [message, setMessage] = useState("");
+  const [chat, setChat] = useState<ChatMessage[]>([]);
+  const [aiTyping, setAiTyping] = useState(false);
   const [selectedHotspot, setSelectedHotspot] = useState<Hotspot | null>(null);
   const [hotspotsVisible, setHotspotsVisible] = useState(true);
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -247,9 +255,7 @@ function MapContent() {
 
   useEffect(() => {
     refreshGridDebounced();
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
   }, [weights, refreshGridDebounced]);
 
   const wLabel: Record<keyof SuitabilityWeights, string> = {
@@ -260,10 +266,7 @@ function MapContent() {
   };
 
   const runPredict = () => {
-    if (!selectedCellId) {
-      setPredictErr("Tap a grid dot on the map first.");
-      return;
-    }
+    if (!selectedCellId) { setPredictErr("Tap a grid dot on the map first."); return; }
     setPredictErr(null);
     setLoadingPredict(true);
     const { rows, cols } = gridDimsRef.current;
@@ -278,36 +281,27 @@ function MapContent() {
       .finally(() => setLoadingPredict(false));
   };
 
-  // scroll chat to bottom
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [chat]);
 
-  // ── Drop hotspot markers ────────────────────────────────────────────────────
   const placeHotspots = useCallback((center: [number, number]) => {
     import("mapbox-gl").then((mapboxgl) => {
       const map = mapInstanceRef.current;
       if (!map) return;
-
-      // Clear old
       hotspotMarkers.current.forEach((m) => m.remove());
       hotspotMarkers.current = [];
-
       const spots = generateHotspots(center);
-
       spots.forEach((spot) => {
         const { color } = SCORE_CONFIG[spot.score];
-        const size = 14 + spot.score * 4; // bigger = higher priority
-
+        const size = 14 + spot.score * 4;
         const el = document.createElement("div");
         el.className = "hotspot-dot";
-        el.style.width  = `${size}px`;
+        el.style.width = `${size}px`;
         el.style.height = `${size}px`;
         el.style.background = color;
-        el.style.boxShadow  = `0 0 ${spot.score * 5}px ${color}88`;
+        el.style.boxShadow = `0 0 ${spot.score * 5}px ${color}88`;
         if (spot.score >= 4) el.classList.add("hotspot-pulse");
         el.title = spot.name;
-
         el.addEventListener("click", () => setSelectedHotspot(spot));
-
         const marker = new mapboxgl.default.Marker({ element: el })
           .setLngLat([spot.lng, spot.lat])
           .addTo(map);
@@ -316,50 +310,37 @@ function MapContent() {
     });
   }, []);
 
-  // ── Fly to location ─────────────────────────────────────────────────────────
   const flyTo = useCallback((lng: number, lat: number, label?: string) => {
     const map = mapInstanceRef.current;
     if (!map) return;
-
     markerRef.current?.remove();
-
     map.flyTo({ center: [lng, lat], zoom: 16.5, pitch: 62, bearing: -17.6, duration: 2400, essential: true });
-
     centerRef.current = [lng, lat];
-
     import("mapbox-gl").then((mapboxgl) => {
       const el = document.createElement("div");
       el.className = "map-marker";
       const m = new mapboxgl.default.Marker({ element: el }).setLngLat([lng, lat]).addTo(map);
       markerRef.current = m;
     });
-
-    // Place hotspots after fly animation finishes
     setTimeout(() => placeHotspots([lng, lat]), 2500);
-
     if (label) setLocationLabel(label);
   }, [placeHotspots]);
 
-  // ── Init map ────────────────────────────────────────────────────────────────
   useEffect(() => {
     if (typeof window === "undefined") return;
-
-    const qParam   = searchParams.get("q")   ?? "";
+    const qParam = searchParams.get("q") ?? "";
     const lngParam = searchParams.get("lng");
     const latParam = searchParams.get("lat");
     const hasCoords = !!(lngParam && latParam);
     const initCenter: [number, number] = hasCoords
       ? [parseFloat(lngParam!), parseFloat(latParam!)]
       : KW_CENTER;
-
     centerRef.current = initCenter;
-
     let mapInstance: MapboxMap | null = null;
 
     import("mapbox-gl").then((mapboxgl) => {
       if (!mapRef.current) return;
       mapboxgl.default.accessToken = MAPBOX_TOKEN;
-
       mapInstance = new mapboxgl.default.Map({
         container: mapRef.current,
         style: "mapbox://styles/mapbox/standard",
@@ -370,7 +351,6 @@ function MapContent() {
         bearing: -17.6,
         antialias: true,
       });
-
       mapInstanceRef.current = mapInstance;
       mapInstance.addControl(new mapboxgl.default.NavigationControl(), "bottom-right");
 
@@ -387,28 +367,9 @@ function MapContent() {
           type: "circle",
           source: "urban-grid",
           paint: {
-            "circle-radius": [
-              "interpolate",
-              ["linear"],
-              ["zoom"],
-              11,
-              4,
-              14,
-              10,
-              18,
-              18,
-            ],
-            "circle-color": [
-              "interpolate",
-              ["linear"],
-              ["get", "score"],
-              0,
-              "#166534",
-              0.5,
-              "#dc2626",
-              1,
-              "#4ade80",
-            ],
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 11, 4, 14, 10, 18, 18],
+            "circle-color": ["interpolate", ["linear"], ["get", "score"],
+              0, "#166534", 0.5, "#dc2626", 1, "#4ade80"],
             "circle-opacity": 0.88,
             "circle-stroke-width": 1,
             "circle-stroke-color": "rgba(232,220,200,0.25)",
@@ -420,17 +381,7 @@ function MapContent() {
           source: "urban-grid",
           filter: ["==", ["get", "id"], ""],
           paint: {
-            "circle-radius": [
-              "interpolate",
-              ["linear"],
-              ["zoom"],
-              11,
-              8,
-              14,
-              16,
-              18,
-              26,
-            ],
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 11, 8, 14, 16, 18, 26],
             "circle-color": "rgba(34,197,94,0)",
             "circle-opacity": 0,
             "circle-stroke-width": 3,
@@ -451,10 +402,7 @@ function MapContent() {
         });
 
         mapInstance.fitBounds(
-          [
-            [KW_BOUNDS.west, KW_BOUNDS.south],
-            [KW_BOUNDS.east, KW_BOUNDS.north],
-          ],
+          [[KW_BOUNDS.west, KW_BOUNDS.south], [KW_BOUNDS.east, KW_BOUNDS.north]],
           { padding: 72, duration: 0 }
         );
 
@@ -489,7 +437,7 @@ function MapContent() {
       mapInstance?.remove();
       mapInstanceRef.current = null;
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -504,14 +452,12 @@ function MapContent() {
     }
   }, [selectedCellId]);
 
-  // Toggle hotspot visibility
   useEffect(() => {
     hotspotMarkers.current.forEach((m) => {
       (m.getElement() as HTMLElement).style.display = hotspotsVisible ? "block" : "none";
     });
   }, [hotspotsVisible]);
 
-  // ── Search ──────────────────────────────────────────────────────────────────
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!query.trim()) return;
@@ -521,7 +467,6 @@ function MapContent() {
     if (coords) flyTo(coords[0], coords[1], query);
   };
 
-  // ── Send change message ─────────────────────────────────────────────────────
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!message.trim()) return;
@@ -534,10 +479,9 @@ function MapContent() {
     setChat((c) => [...c, { role: "ai", text: generateAIResponse(userMsg, locationLabel) }]);
   };
 
-  const togglePanel = (panel: "communicate") =>
+  const togglePanel = (panel: "communicate" | "cost") =>
     setActivePanel((p) => (p === panel ? null : panel));
 
-  // Count hotspots per score for legend stats
   const hotspotCounts = generateHotspots(centerRef.current).reduce<Record<number, number>>(
     (acc, h) => { acc[h.score] = (acc[h.score] || 0) + 1; return acc; }, {}
   );
@@ -558,10 +502,9 @@ function MapContent() {
           onClick={() => togglePanel("communicate")}
           title="Propose a change"
         >
-          {/* Chat bubble */}
           <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
             <path strokeLinecap="round" strokeLinejoin="round"
-              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
           </svg>
         </button>
 
@@ -570,17 +513,27 @@ function MapContent() {
           onClick={() => setHotspotsVisible((v) => !v)}
           title="Toggle greenspace hotspots"
         >
-          {/* Map layers */}
           <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
             <path strokeLinecap="round" strokeLinejoin="round"
-              d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+              d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
           </svg>
         </button>
 
-        <button className="sidebar-btn" title="Analytics" onClick={() => {}}>
-          {/* Bar chart */}
+        <button className="sidebar-btn" title="Analytics" onClick={() => { }}>
           <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+        </button>
+
+        {/* Cost analysis tab */}
+        <button
+          className={`sidebar-btn ${activePanel === "cost" ? "active" : ""}`}
+          onClick={() => togglePanel("cost")}
+          title="Cost analysis"
+        >
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+            <line x1="12" y1="2" x2="12" y2="22" strokeLinecap="round" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
           </svg>
         </button>
 
@@ -588,7 +541,7 @@ function MapContent() {
 
         <Link href="/" className="sidebar-btn" title="Home">
           <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
           </svg>
         </Link>
       </div>
@@ -602,8 +555,6 @@ function MapContent() {
           </div>
           <button className="comm-close" onClick={() => setActivePanel(null)}>✕</button>
         </div>
-
-        {/* Greens chip row */}
         <div className="comm-chips">
           {["Add greenspace", "Plant trees", "Convert parking", "Pedestrian zone", "Community garden"].map((chip) => (
             <button key={chip} className="comm-chip" onClick={() => setMessage(chip)}>
@@ -611,13 +562,11 @@ function MapContent() {
             </button>
           ))}
         </div>
-
-        {/* Chat history */}
         <div className="comm-chat">
           {chat.length === 0 && (
             <div className="comm-empty">
               <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.2} style={{ opacity: 0.3 }}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
               </svg>
               <span>Describe a change you want to see in this area</span>
             </div>
@@ -636,8 +585,6 @@ function MapContent() {
           )}
           <div ref={chatEndRef} />
         </div>
-
-        {/* Input */}
         <form className="comm-input-row" onSubmit={handleSend}>
           <input
             type="text"
@@ -650,96 +597,91 @@ function MapContent() {
         </form>
       </div>
 
-      {/* ── API: suitability + prediction (backend) ───────────────────────── */}
-      <aside className="map-panel">
-        <h2 className="map-panel-title">Green priority (API)</h2>
-        <p className="map-panel-hint">
-          Grid dots: dark green → red (mid) → light green by suitability score.
-        </p>
-        {(Object.keys(weights) as (keyof SuitabilityWeights)[]).map((k) => (
-          <label key={k} className="map-slider-row">
-            <span>{wLabel[k]}</span>
-            <input
-              type="range"
-              min={0}
-              max={100}
-              value={Math.round(weights[k] * 50)}
-              onChange={(e) =>
-                setWeights((prev) => ({
-                  ...prev,
-                  [k]: Number(e.target.value) / 50,
-                }))
-              }
-            />
-          </label>
-        ))}
-        {loadingGrid && <p className="map-panel-muted">Loading grid…</p>}
-        <div className="map-panel-section">
-          <h3 className="map-panel-sub">Top picks</h3>
-          <ol className="map-top-list">
-            {top.map((t, i) => (
-              <li key={t.id}>
-                <button
-                  type="button"
-                  className={
-                    selectedCellId === t.id ? "map-top-btn active" : "map-top-btn"
-                  }
-                  onClick={() => setSelectedCellId(t.id)}
-                >
-                  #{i + 1} {t.id} · {(t.score * 100).toFixed(0)}%
-                </button>
-              </li>
-            ))}
-          </ol>
-        </div>
-        <div className="map-panel-section">
-          <h3 className="map-panel-sub">Scenario (+greenery)</h3>
+      {/* ── Green priority panel — hidden when cost panel is open ─────────── */}
+      {activePanel !== "cost" && (
+        <aside className="map-panel">
+          <h2 className="map-panel-title">Green priority (API)</h2>
           <p className="map-panel-hint">
-            Select a grid dot, then run prediction (stub model).
+            Grid dots: dark green → red (mid) → light green by suitability score.
           </p>
-          <label className="map-slider-row">
-            <span>+{greeneryPct}% greenery</span>
-            <input
-              type="range"
-              min={0}
-              max={100}
-              step={10}
-              value={greeneryPct}
-              onChange={(e) => setGreeneryPct(Number(e.target.value))}
-            />
-          </label>
-          <button
-            type="button"
-            className="map-predict-btn"
-            disabled={loadingPredict || !selectedCellId}
-            onClick={runPredict}
-          >
-            {loadingPredict ? "Running…" : "Run prediction"}
-          </button>
-          {predictErr && <p className="map-panel-err">{predictErr}</p>}
-          {predict && (
-            <div className="map-predict-out">
-              <div>
-                <strong>Carbon index</strong>{" "}
-                <span className="map-delta">
-                  {predict.baseline.carbonIndex.toFixed(2)} →{" "}
-                  {predict.scenario.carbonIndex.toFixed(2)}
-                </span>{" "}
-                (Δ {predict.delta.carbonIndex.toFixed(3)})
+          {(Object.keys(weights) as (keyof SuitabilityWeights)[]).map((k) => (
+            <label key={k} className="map-slider-row">
+              <span>{wLabel[k]}</span>
+              <input
+                type="range" min={0} max={100}
+                value={Math.round(weights[k] * 50)}
+                onChange={(e) =>
+                  setWeights((prev) => ({ ...prev, [k]: Number(e.target.value) / 50 }))
+                }
+              />
+            </label>
+          ))}
+          {loadingGrid && <p className="map-panel-muted">Loading grid…</p>}
+          <div className="map-panel-section">
+            <h3 className="map-panel-sub">Top picks</h3>
+            <ol className="map-top-list">
+              {top.map((t, i) => (
+                <li key={t.id}>
+                  <button
+                    type="button"
+                    className={selectedCellId === t.id ? "map-top-btn active" : "map-top-btn"}
+                    onClick={() => setSelectedCellId(t.id)}
+                  >
+                    #{i + 1} {t.id} · {(t.score * 100).toFixed(0)}%
+                  </button>
+                </li>
+              ))}
+            </ol>
+          </div>
+          <div className="map-panel-section">
+            <h3 className="map-panel-sub">Scenario (+greenery)</h3>
+            <p className="map-panel-hint">Select a grid dot, then run prediction (stub model).</p>
+            <label className="map-slider-row">
+              <span>+{greeneryPct}% greenery</span>
+              <input type="range" min={0} max={100} step={10} value={greeneryPct}
+                onChange={(e) => setGreeneryPct(Number(e.target.value))} />
+            </label>
+            <button
+              type="button"
+              className="map-predict-btn"
+              disabled={loadingPredict || !selectedCellId}
+              onClick={runPredict}
+            >
+              {loadingPredict ? "Running…" : "Run prediction"}
+            </button>
+            {predictErr && <p className="map-panel-err">{predictErr}</p>}
+            {predict && (
+              <div className="map-predict-out">
+                <div>
+                  <strong>Carbon index</strong>{" "}
+                  <span className="map-delta">
+                    {predict.baseline.carbonIndex.toFixed(2)} → {predict.scenario.carbonIndex.toFixed(2)}
+                  </span>{" "}
+                  (Δ {predict.delta.carbonIndex.toFixed(3)})
+                </div>
+                <div>
+                  <strong>Heat mitigation</strong>{" "}
+                  <span className="map-delta">
+                    {predict.baseline.heatMitigationIndex.toFixed(2)} → {predict.scenario.heatMitigationIndex.toFixed(2)}
+                  </span>{" "}
+                  (Δ {predict.delta.heatMitigationIndex.toFixed(3)})
+                </div>
+                <p className="map-panel-muted">{predict.meta.disclaimer}</p>
               </div>
-              <div>
-                <strong>Heat mitigation</strong>{" "}
-                <span className="map-delta">
-                  {predict.baseline.heatMitigationIndex.toFixed(2)} →{" "}
-                  {predict.scenario.heatMitigationIndex.toFixed(2)}
-                </span>{" "}
-                (Δ {predict.delta.heatMitigationIndex.toFixed(3)})
-              </div>
-              <p className="map-panel-muted">{predict.meta.disclaimer}</p>
-            </div>
-          )}
-        </div>
-      </aside>
+            )}
+          </div>
+        </aside>
+      )}
+
+      {/* ── Cost analysis panel ───────────────────────────────────────────── */}
+      {activePanel === "cost" && (
+        <CostAnalysisPanel
+          selectedCellId={selectedCellId}
+          rows={8}
+          cols={10}
+          onClose={() => setActivePanel(null)}
+        />
+      )}
 
       {/* ── Top search bar ────────────────────────────────────────────────── */}
       <div className="map-topbar" style={{ left: "calc(60px + 20px)", transform: "none", width: "min(640px, calc(100vw - 120px))" }}>
@@ -764,10 +706,7 @@ function MapContent() {
       {selectedHotspot && (
         <div className="hotspot-detail">
           <div className="hotspot-detail-header">
-            <span
-              className="hotspot-score-badge"
-              style={{ background: SCORE_CONFIG[selectedHotspot.score].color }}
-            >
+            <span className="hotspot-score-badge" style={{ background: SCORE_CONFIG[selectedHotspot.score].color }}>
               Level {selectedHotspot.score} — {SCORE_CONFIG[selectedHotspot.score].label}
             </span>
             <button className="hotspot-close" onClick={() => setSelectedHotspot(null)}>✕</button>
@@ -803,7 +742,9 @@ function MapContent() {
               <span className="hs-legend-count">{hotspotCounts[s] ?? 0}</span>
             </div>
           ))}
-          <div className="hs-legend-total">Total sites: {Object.values(hotspotCounts).reduce((a, b) => a + b, 0)}</div>
+          <div className="hs-legend-total">
+            Total sites: {Object.values(hotspotCounts).reduce((a, b) => a + b, 0)}
+          </div>
         </div>
       )}
     </div>

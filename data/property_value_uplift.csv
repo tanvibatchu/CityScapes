@@ -1,0 +1,21 @@
+greenspace_proximity_type,distance_m,avg_uplift_pct,sample_size,city,notes
+ravine_backing,0,18.4,142,Toronto,Direct ravine lot backing
+ravine_backing,0,15.2,87,Kitchener-Waterloo,Grand River ravine lots
+ravine_backing,0,16.8,63,Ottawa,Rideau River ravine lots
+ravine_facing,0,12.1,98,Toronto,Faces ravine across street
+ravine_facing,0,9.8,54,Kitchener-Waterloo,Faces ravine across street
+park_backing,0,11.2,215,Toronto,Direct park backing
+park_backing,0,8.9,134,Kitchener-Waterloo,Direct park backing
+park_backing,0,10.1,89,Vancouver,Direct park backing
+park_facing,0,7.4,188,Toronto,Faces park across street
+park_facing,0,6.2,112,Kitchener-Waterloo,Faces park across street
+park_proximity,100,5.8,320,Toronto,Within 100m of park
+park_proximity,100,4.9,198,Kitchener-Waterloo,Within 100m of park
+park_proximity,250,3.2,445,Toronto,Within 250m of park
+park_proximity,250,2.8,276,Kitchener-Waterloo,Within 250m of park
+park_proximity,500,1.9,612,Toronto,Within 500m of park
+park_proximity,500,1.6,387,Kitchener-Waterloo,Within 500m of park
+park_proximity,1000,0.8,834,Toronto,Within 1km of park
+park_proximity,1000,0.6,521,Kitchener-Waterloo,Within 1km of park
+no_greenspace,1000,0.0,1240,Toronto,Control no nearby greenspace
+no_greenspace,1000,0.0,876,Kitchener-Waterloo,Control no nearby greenspace

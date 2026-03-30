@@ -1,0 +1,16 @@
+sale_year,neighbourhood,city,property_type,sale_price_cad,distance_to_park_m,backs_onto_greenspace,backs_onto_ravine,lot_size_m2,price_per_m2_cad,greenspace_premium_est_pct
+2020,Victoria Park area,Kitchener,detached,685000,0,true,false,420,1631,11.2
+2020,Victoria Park area,Kitchener,detached,612000,150,false,false,385,1590,4.8
+2020,Downtown Kitchener,Kitchener,condo,385000,800,false,false,85,4529,0.0
+2021,Waterloo Park area,Waterloo,detached,798000,0,true,false,455,1754,12.1
+2021,Waterloo Park area,Waterloo,detached,712000,200,false,false,420,1695,5.2
+2021,Laurelwood,Waterloo,detached,920000,180,false,false,510,1804,3.1
+2022,Doon,Kitchener,detached,875000,0,false,true,520,1683,15.8
+2022,Doon,Kitchener,detached,780000,100,false,false,490,1592,0.0
+2022,Grand River backing,Kitchener,detached,1120000,0,true,true,580,1931,18.4
+2022,Grand River facing,Kitchener,detached,945000,0,false,true,490,1929,14.2
+2023,Beechwood,Waterloo,detached,842000,80,false,false,465,1811,2.9
+2023,Colonial Acres,Waterloo,detached,798000,120,false,false,440,1814,1.8
+2023,Forest Heights,Kitchener,detached,765000,220,false,false,430,1779,1.2
+2024,Vista Hills,Waterloo,detached,985000,90,false,false,530,1858,2.4
+2024,Huron natural area,Kitchener,detached,1050000,0,true,false,560,1875,14.6

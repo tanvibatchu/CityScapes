@@ -1,0 +1,17 @@
+greenspace_type,species_or_category,tonnes_co2_per_ha_per_yr,maturity_years,notes
+dense_forest,mixed_deciduous,8.5,20,Temperate mixed forest Ontario avg
+dense_forest,coniferous,6.2,25,Pine/spruce dominated stands
+dense_forest,urban_canopy_mix,10.2,15,High density urban tree planting
+urban_park,mature_trees_30pct,3.8,10,30% tree cover typical urban park
+urban_park,mature_trees_50pct,5.4,12,50% tree cover high canopy park
+urban_park,grass_only,0.8,2,Maintained turf minimal sequestration
+community_garden,vegetable_beds,1.2,1,Annual crops low sequestration
+community_garden,perennial_mix,2.1,5,Mixed perennial beds
+wetland_bioswale,cattail_marsh,6.8,5,High organic matter accumulation
+wetland_bioswale,sedge_meadow,5.2,4,Sedge dominated wetland
+wetland_bioswale,open_water_mix,4.1,3,Mixed open water and emergent
+street_trees,large_deciduous,0.12,15,Per tree per year mature oak/maple
+street_trees,medium_deciduous,0.08,10,Per tree per year medium species
+street_trees,small_ornamental,0.04,8,Per tree per year ornamental species
+green_roof,extensive_sedum,0.3,2,Per 100 sqm extensive green roof
+green_roof,intensive_mixed,1.1,5,Per 100 sqm intensive green roof

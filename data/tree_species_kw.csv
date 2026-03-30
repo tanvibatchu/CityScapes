@@ -1,0 +1,16 @@
+species_common,species_scientific,native_to_ontario,avg_mature_height_m,canopy_spread_m,co2_sequestration_kg_per_yr_mature,lifespan_years,drought_tolerance,cost_per_tree_cad,maintenance_cost_annual_cad,notes
+Sugar Maple,Acer saccharum,true,25,15,48.5,200,low,450,35,Provincial tree excellent fall colour
+Red Oak,Quercus rubra,true,22,14,52.1,250,medium,420,30,Long lived excellent carbon storage
+White Pine,Pinus strobus,true,30,8,38.4,200,low,380,25,Fast growing native conifer
+Silver Maple,Acer saccharinum,true,20,12,42.8,130,high,380,30,Fast growing flood tolerant
+Eastern White Cedar,Thuja occidentalis,true,15,5,18.2,150,medium,320,20,Privacy screening native
+Honey Locust,Gleditsia triacanthos,false,18,12,35.6,120,high,390,25,Urban tolerant thornless cultivars
+Ginkgo,Ginkgo biloba,false,20,8,28.4,200,high,420,20,Extremely urban tolerant
+Kentucky Coffeetree,Gymnocladus dioicus,true,20,12,44.2,150,high,480,30,Underused native highly resilient
+Bur Oak,Quercus macrocarpa,true,18,15,55.8,300,high,460,28,Extremely long lived drought tolerant
+Tulip Tree,Liriodendron tulipifera,true,28,10,46.3,180,low,440,32,Fast growing tall native
+River Birch,Betula nigra,true,18,10,29.8,80,medium,360,28,Riparian zones naturalistic
+Serviceberry,Amelanchier canadensis,true,8,6,12.4,80,medium,280,18,Small native excellent for pollinators
+Hackberry,Celtis occidentalis,true,16,12,38.9,150,high,370,22,Extremely adaptable urban tree
+American Elm,Ulmus americana,true,25,18,50.2,200,medium,520,40,DED resistant cultivars available
+Freeman Maple,Acer x freemanii,false,18,12,40.1,120,medium,400,28,Autumn Blaze popular cultivar

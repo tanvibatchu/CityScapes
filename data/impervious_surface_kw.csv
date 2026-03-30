@@ -1,0 +1,16 @@
+neighbourhood,city,total_area_ha,impervious_ha,impervious_pct,road_pct,parking_pct,roof_pct,pervious_pct,greenspace_ha,stormwater_risk_score,greening_potential_score
+Downtown Kitchener,Kitchener,320,262.4,82.0,28.5,18.2,35.3,18.0,57.6,0.92,0.88
+Rockway,Kitchener,285,202.4,71.0,24.1,15.8,31.1,29.0,82.7,0.75,0.72
+Forest Heights,Kitchener,510,280.5,55.0,20.2,10.5,24.3,45.0,229.5,0.52,0.55
+Stanley Park,Kitchener,440,264.0,60.0,21.8,12.4,25.8,40.0,176.0,0.58,0.61
+Doon,Kitchener,395,166.0,42.0,16.5,7.8,17.7,58.0,229.1,0.32,0.35
+Pioneer Park,Kitchener,375,255.0,68.0,23.4,14.6,30.0,32.0,120.0,0.71,0.68
+Idlewood,Kitchener,290,185.6,64.0,22.5,13.8,27.7,36.0,104.4,0.65,0.62
+Uptown Waterloo,Waterloo,285,216.6,76.0,26.2,17.5,32.3,24.0,68.4,0.85,0.82
+Beechwood,Waterloo,310,158.1,51.0,18.8,9.8,22.4,49.0,151.9,0.44,0.48
+Colonial Acres,Waterloo,245,112.7,46.0,17.2,8.5,20.3,54.0,132.3,0.38,0.42
+Lakeshore,Waterloo,420,260.4,62.0,22.1,13.5,26.4,38.0,159.6,0.62,0.65
+Vista Hills,Waterloo,380,144.4,38.0,15.2,6.8,16.0,62.0,235.6,0.25,0.28
+Eastbridge,Waterloo,465,260.4,56.0,20.5,11.2,24.3,44.0,204.6,0.54,0.57
+Laurelwood,Waterloo,355,124.3,35.0,14.1,6.2,14.7,65.0,230.8,0.22,0.25
+Cambridge Downtown,Cambridge,298,244.4,82.0,28.2,17.9,35.9,18.0,53.6,0.91,0.87

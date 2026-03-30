@@ -1,0 +1,16 @@
+neighbourhood,city,low_income_pct,visible_minority_pct,seniors_pct,children_under_14_pct,avg_commute_min,greenspace_access_score,health_outcome_index,priority_score
+Downtown Kitchener,Kitchener,28.4,42.1,14.2,16.8,22,0.38,0.52,0.91
+Rockway,Kitchener,22.1,31.5,18.9,14.2,24,0.45,0.58,0.82
+Pioneer Park,Kitchener,24.8,38.2,12.1,18.4,28,0.48,0.55,0.85
+Idlewood,Kitchener,19.2,28.4,16.5,15.9,25,0.52,0.61,0.76
+Forest Heights,Kitchener,14.5,22.8,15.2,17.1,31,0.62,0.68,0.64
+Stanley Park,Kitchener,16.8,25.6,14.8,16.5,29,0.58,0.65,0.69
+Doon,Kitchener,10.2,18.4,13.2,18.9,35,0.74,0.76,0.48
+Centreville Chicopee,Kitchener,18.4,29.8,15.6,17.2,27,0.55,0.62,0.72
+Uptown Waterloo,Waterloo,20.5,35.2,11.8,12.4,18,0.52,0.59,0.79
+Lakeshore,Waterloo,21.8,32.6,17.4,15.8,23,0.48,0.56,0.81
+Beechwood,Waterloo,12.4,19.8,16.2,16.9,28,0.68,0.72,0.55
+Colonial Acres,Waterloo,11.8,18.2,15.8,17.4,30,0.71,0.74,0.52
+Eastbridge,Waterloo,13.6,21.4,14.5,18.2,32,0.65,0.70,0.58
+Vista Hills,Waterloo,8.9,15.6,12.8,20.1,38,0.82,0.82,0.38
+Laurelwood,Waterloo,7.2,12.8,11.4,21.5,42,0.88,0.86,0.29

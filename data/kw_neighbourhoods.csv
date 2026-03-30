@@ -1,0 +1,16 @@
+neighbourhood,city,population,area_ha,population_density_per_ha,median_household_income_cad,avg_property_value_cad,greenspace_pct,park_within_500m_pct,equity_index
+Uptown Waterloo,Waterloo,12400,285,43.5,88500,620000,12.3,78,0.72
+Beechwood,Waterloo,8200,310,26.5,76200,545000,18.7,65,0.68
+Colonial Acres,Waterloo,6100,245,24.9,82300,580000,22.1,71,0.74
+Lakeshore,Waterloo,9800,420,23.3,71400,510000,15.4,55,0.61
+Vista Hills,Waterloo,7600,380,20.0,95200,680000,28.3,85,0.81
+Eastbridge,Waterloo,11200,465,24.1,79800,560000,19.2,68,0.70
+Laurelwood,Waterloo,8900,355,25.1,102400,720000,31.5,88,0.85
+Downtown Kitchener,Kitchener,18600,320,58.1,52300,380000,5.2,42,0.38
+Rockway,Kitchener,9400,285,33.0,58700,420000,8.9,51,0.45
+Forest Heights,Kitchener,14200,510,27.8,68900,495000,16.8,62,0.63
+Stanley Park,Kitchener,11800,440,26.8,72100,520000,20.4,69,0.67
+Doon,Kitchener,8700,395,22.0,85600,610000,24.7,74,0.76
+Pioneer Park,Kitchener,10200,375,27.2,61400,445000,11.3,48,0.52
+Idlewood,Kitchener,7300,290,25.2,65800,470000,14.6,57,0.58
+Centreville Chicopee,Kitchener,9100,340,26.8,69200,500000,17.9,63,0.65

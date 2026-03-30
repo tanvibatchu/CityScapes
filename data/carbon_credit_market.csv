@@ -1,0 +1,17 @@
+year,canada_carbon_price_cad_per_tonne,voluntary_market_price_usd,compliance_market_price_cad,projected_price_cad,notes
+2020,30,5.2,30,30,Federal carbon pricing baseline
+2021,40,8.1,40,40,Annual $10 increase schedule
+2022,50,12.4,50,50,Post-pandemic market recovery
+2023,65,15.8,65,65,Accelerated pricing pathway
+2024,80,18.2,80,80,Continued federal schedule
+2025,95,22.5,95,95,Current price used in model
+2026,110,26.0,110,110,Projected federal schedule
+2027,125,30.1,125,125,Projected
+2028,140,34.5,140,140,Projected
+2029,155,39.2,155,155,Projected
+2030,170,44.8,170,170,2030 federal target price
+2031,185,48.2,185,185,Post-2030 projection
+2032,200,52.1,200,200,Long term projection
+2033,215,56.4,215,215,Long term projection
+2034,230,61.0,230,230,Long term projection
+2035,245,66.2,245,245,Long term projection

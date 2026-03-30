@@ -1,0 +1,13 @@
+greenspace_type,area_m2,cooling_radius_m,avg_temp_reduction_c,energy_savings_cad_per_m2_yr,buildings_affected,notes
+dense_forest,1000,150,1.8,3.4,12,Evapotranspiration cooling effect
+dense_forest,5000,300,2.8,3.2,45,Large canopy cooling island
+urban_park,1000,100,1.2,1.9,8,Mixed park cooling effect
+urban_park,5000,200,1.9,1.8,28,Park cooling island effect
+community_garden,1000,50,0.8,1.1,5,Limited cooling effect
+community_garden,5000,100,1.1,1.0,15,Community garden cluster
+wetland_bioswale,1000,120,1.5,2.1,9,Evaporative cooling wetland
+wetland_bioswale,5000,250,2.2,2.0,32,Large wetland cooling
+green_roof,1000,20,0.4,0.9,1,Direct building cooling only
+green_roof,5000,80,0.8,0.85,4,Green roof district cooling
+street_trees,200,40,1.0,1.5,6,Per 200m shaded street corridor
+living_wall,100,10,0.3,0.7,1,Per 100m2 living wall

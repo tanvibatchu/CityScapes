@@ -1,0 +1,13 @@
+city,country,project_name,greenspace_type,area_ha,total_capex_cad_millions,annual_benefits_cad_millions,break_even_years,carbon_credits_pct_revenue,property_uplift_pct_revenue,stormwater_pct_revenue,energy_pct_revenue,notes
+Toronto,Canada,High Park Expansion,urban_park,12.5,18.4,2.1,8,12,45,28,15,Major urban park expansion
+Vancouver,Canada,Everett Crowley Park,natural_area,28.8,22.6,2.8,8,18,38,32,12,Remediated landfill to park
+Ottawa,Canada,Rideau River Greenway,linear_park,8.2,12.8,1.6,8,15,42,30,13,River corridor greenway
+Calgary,Canada,Elbow River Pathway,linear_park,15.4,16.2,2.0,8,14,40,31,15,Flood mitigation greenway
+Montreal,Canada,Parc Frédéric-Back,natural_area,48.6,35.2,4.8,7,22,35,28,15,Quarry to nature park
+Minneapolis,USA,Minnehaha Regional Park,urban_park,18.2,24.8,3.1,8,16,44,28,12,Historic park expansion
+Chicago,USA,606 Trail,linear_park,2.8,95.2,8.4,11,8,58,24,10,Elevated rail to trail
+New York,USA,High Line,linear_park,2.4,285.0,48.2,6,4,82,8,6,Premium urban context
+Singapore,Singapore,Gardens by the Bay,mixed,101.0,1850.0,185.0,10,5,68,15,12,Iconic tourism component
+Melbourne,Australia,Merri Creek Trail,linear_park,22.4,18.6,2.4,8,20,38,30,12,Creek corridor restoration
+Amsterdam,Netherlands,Amstelpark,urban_park,38.0,28.4,3.8,7,25,32,28,15,Dutch urban park model
+Copenhagen,Denmark,Superkilen,urban_park,3.3,42.5,5.2,8,18,48,22,12,Award winning urban park

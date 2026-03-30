@@ -1,0 +1,22 @@
+greenspace_type,region,capex_per_m2_cad,opex_per_m2_cad_yr,source_notes
+urban_park,Kitchener-Waterloo,110,7.5,Region of Waterloo Parks Dept estimates
+urban_park,Toronto,145,9.2,Toronto Parks & Forestry benchmarks
+urban_park,Vancouver,160,11.0,Vancouver Board of Parks benchmarks
+urban_park,Calgary,95,6.8,Calgary Parks capital estimates
+urban_park,Ottawa,105,7.0,NCC greenspace reports
+urban_park,Montreal,120,8.1,Ville de Montreal parks division
+urban_park,Edmonton,98,7.2,Edmonton river valley authority
+dense_forest,Kitchener-Waterloo,170,4.5,Urban forestry program KW
+dense_forest,Toronto,210,5.8,Toronto Urban Forest Strategy
+dense_forest,Vancouver,225,6.2,Vancouver Urban Forestry
+dense_forest,Calgary,155,4.0,Calgary urban canopy program
+dense_forest,Ottawa,165,4.8,Ottawa urban tree canopy
+dense_forest,Montreal,180,5.1,Montreal urban forest initiative
+community_garden,Kitchener-Waterloo,80,11.0,KW community garden network
+community_garden,Toronto,95,13.5,Toronto community gardens
+community_garden,Vancouver,105,14.2,Vancouver community gardens
+community_garden,Calgary,72,10.5,Calgary grow calgary program
+wetland_bioswale,Kitchener-Waterloo,195,9.8,Grand River Conservation Authority
+wetland_bioswale,Toronto,220,11.2,TRCA wetland restoration
+wetland_bioswale,Vancouver,240,12.5,Metro Vancouver green infrastructure
+wetland_bioswale,Ottawa,185,9.2,Ottawa stormwater management

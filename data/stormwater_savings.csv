@@ -1,0 +1,13 @@
+greenspace_type,area_m2,annual_runoff_reduction_litres,sewage_cost_savings_cad_per_m2_yr,infrastructure_deferral_cad_per_m2,notes
+wetland_bioswale,1000,4200000,8.2,45.0,High infiltration capacity
+wetland_bioswale,5000,19800000,8.0,44.5,Economies of scale
+dense_forest,1000,2800000,4.1,22.0,Interception and infiltration
+dense_forest,5000,13200000,4.0,21.8,Canopy interception dominant
+urban_park,1000,1600000,2.6,14.0,Mixed surface park
+urban_park,5000,7500000,2.5,13.8,Standard maintained park
+community_garden,1000,1200000,1.9,10.5,Permeable beds and paths
+community_garden,5000,5600000,1.8,10.2,Community garden network
+green_roof,1000,900000,1.4,8.0,Extensive green roof
+rain_garden,500,1800000,6.5,35.0,Concentrated bioretention
+bioswale_linear,200,2100000,7.2,38.0,Per 200m linear bioswale
+tree_pit_enhanced,50,180000,3.2,18.0,Per enhanced tree pit
